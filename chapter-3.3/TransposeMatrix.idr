@@ -20,25 +20,20 @@ multMatrixCalculateCell row transposedColumn =
 
 total multMatrixCalculateRow : Num a =>
   Vect m a -> Vect n (Vect m a) -> Vect n a
-multMatrixCalculateRow row1 matrix2 =
+multMatrixCalculateRow row1 [] = []
+multMatrixCalculateRow row1 (m2_row :: m2_rest) =
   let
-    row1_r = replicate (length matrix2) row1
+    cell = multMatrixCalculateCell row1 m2_row
+    other_cells = multMatrixCalculateRow row1 m2_rest
   in
-    zipWith multMatrixCalculateCell row1_r matrix2
-
-foo : Num a =>
-  (matrix1 : Vect height_1 (Vect shared a)) ->
-  (matrix2 : Vect width_2 (Vect shared a)) ->
-  Vect height_1 (Vect width_2 a)
-foo [] _ = []
-foo (row1 :: matrix1Rest) matrix2 = ?foo1
-  --let row1_replicated = replicate (length matrix2) row1
-  --in multMatrixCalculateCell row1_replicated
+    cell :: other_cells
 
 total multMatrix : Num a =>
   Vect height_1 (Vect shared a) ->
   Vect shared (Vect width_2 a) ->
   Vect height_1 (Vect width_2 a)
 multMatrix matrix1 matrix2 =
-  let matrix2_transposed = transposeMat matrix2 in
-    foo matrix1 matrix2_transposed
+  let
+    matrix2_transposed = transposeMat matrix2
+  in
+    map (\row => multMatrixCalculateRow row matrix2_transposed) matrix1
